@@ -13,7 +13,15 @@ public class FriendSave {
 	
 	private double friendDistance = 50D;
 	private float maxReductionPercent = 0.35F;
+	private float damageReductionScale = 1.09F;
+	private int baseDamageReduction = 1;
+	private float maxIncreasePercent = 0.2F;
+	private float damageIncreaseScale = 1.65F;
+	private int baseDamageIncrease = 1;
 	private ArrayList<FriendList> friendLists = new ArrayList<FriendList>();
+	private boolean reduceDamageTaken = true;
+	private boolean increaseDamageDealt = false;
+	private boolean preventFriendlyFire = false;
 	
 	public FriendSave() {
 		this.friendLists = new ArrayList<FriendList>();
@@ -30,6 +38,34 @@ public class FriendSave {
 		return friends;
 	}
 	
+	public boolean shouldPreventFriendlyFire() {
+		return this.preventFriendlyFire;
+	}
+	
+	public boolean shouldReduceDamageTaken() {
+		return this.reduceDamageTaken;
+	}
+	
+	public float getMaxIncreasePercent() {
+		return maxIncreasePercent;
+	}
+
+	public float getDamageIncreaseScale() {
+		return damageIncreaseScale;
+	}
+
+	public int getBaseDamageIncrease() {
+		return baseDamageIncrease;
+	}
+
+	public boolean shouldIncreaseDamageDealt() {
+		return this.increaseDamageDealt;
+	}
+	
+	public int getBaseDamageReduction() {
+		return this.baseDamageReduction;
+	}
+	
 	public double getFriendDistance() {
 		return this.friendDistance;
 	}
@@ -40,6 +76,10 @@ public class FriendSave {
 	
 	public void addFriendList(FriendList list) {
 		this.friendLists.add(list);
+	}
+	
+	public float getDamageReductionScale() {
+		return this.damageReductionScale;
 	}
 	
 	public void purgeEmpty() {

@@ -12,6 +12,7 @@ import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
+import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
@@ -21,24 +22,51 @@ import vg.civcraft.mc.namelayer.NameAPI;
 public class FriendshipListener implements Listener {
 
 	private static HashMap<UUID, List<UUID>> pendingInvites = new HashMap<UUID, List<UUID>>();
+	FriendSave config = CivFriends.friendSave;
 	
-	@EventHandler
+	@EventHandler(priority = EventPriority.LOWEST)
 	public void playerDamage(EntityDamageByEntityEvent event) {
 		if(!(event.getEntity() instanceof Player)) {
 			return;
-		}
+		}	
 		Player p = (Player) event.getEntity();
 		UUID uuid = NameAPI.getUUID(p.getName());
-		int nearbyFriends = getNearbyFriends(uuid, p.getLocation());
-		float maxReductionPercent = CivFriends.friendSave.getMaxReductionPercent();
-		double initialDamage = event.getDamage();
-		float reductionPercentage = 0F;
-		for(int i = 0; i < nearbyFriends; i++) {
-			reductionPercentage += 1 / (Math.pow(i, 1.09));
+		if((event.getDamager() instanceof Player) && config.shouldPreventFriendlyFire()) {
+			//check if the players are friends and if so cancel the damage
+			Player damager = (Player) event.getDamager();
+			UUID damagerID = NameAPI.getUUID(damager.getName());
+			if(config.getFriendListForPlayer(damagerID).getFriends().contains(uuid)) {
+				event.setCancelled(true);
+				return;
+			}
 		}
-		reductionPercentage /= 10;
-		reductionPercentage = cutDecimals(reductionPercentage);
-		double finalDamage = initialDamage * (1 - Math.min(reductionPercentage, maxReductionPercent));
+		if(!config.shouldIncreaseDamageDealt() && !config.shouldReduceDamageTaken()) {
+			//well we don't need to do anything i guess
+			return;
+		}
+		int nearbyFriends = getNearbyFriends(uuid, p.getLocation());
+		double initialDamage = event.getDamage();
+		double totalIncrease = 0;
+		double totalReduction = 0;
+		if(config.shouldReduceDamageTaken()) {
+			float reductionPercentage = 0F;
+			for(int i = 0; i < nearbyFriends; i++) {
+				reductionPercentage += config.getBaseDamageReduction() / Math.pow(i, config.getDamageReductionScale());
+			}
+			reductionPercentage /= 10;
+			reductionPercentage = cutDecimals(reductionPercentage);
+			totalReduction = initialDamage * Math.min(reductionPercentage, config.getMaxReductionPercent());
+		}
+		if(config.shouldIncreaseDamageDealt()) {
+			float increasePercentage = 0F;
+			for(int i = 0; i < nearbyFriends; i++) {
+				increasePercentage += config.getBaseDamageIncrease() / Math.pow(i, config.getDamageIncreaseScale());
+			}
+			increasePercentage /= 10;
+			increasePercentage = cutDecimals(increasePercentage);
+			totalIncrease = initialDamage * Math.min(increasePercentage, config.getMaxIncreasePercent());
+		}
+		double finalDamage = initialDamage - totalReduction + totalIncrease;
 		event.setDamage(finalDamage);
 	}
 	
@@ -85,11 +113,11 @@ public class FriendshipListener implements Listener {
 	
 	private int getNearbyFriends(UUID uuid, Location loc) {
 		int nearby = 0;
-		FriendList friends = CivFriends.friendSave.getFriendListForPlayer(uuid);
+		FriendList friends = config.getFriendListForPlayer(uuid);
 		for(UUID friendID : friends.getFriends()) {
 			if(Bukkit.getOfflinePlayer(friendID).isOnline()) {
 				Player friend = Bukkit.getPlayer(friendID);
-				if(friend.getLocation().distance(loc) <= CivFriends.friendSave.getFriendDistance())	{
+				if(friend.getLocation().distance(loc) <= config.getFriendDistance())	{
 					nearby++;
 				}
 			}

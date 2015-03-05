@@ -1,7 +1,7 @@
 # CivFriends
 Friendship plugin for Civcraft
-Plugin makes you super friendly with your friendly friends
-When you're fighting near a friend you get a damage reduction!
+
+Plugin makes you super friendly with your friendly friends so when you're fighting near a friend you get a damage reduction!
 
 | Command            | Usage                                  |
 |--------------------|----------------------------------------|
@@ -9,3 +9,5 @@ When you're fighting near a friend you get a damage reduction!
 | /faccept <player>  | Accepts a friend request from a player |
 | /fdelete <player>  | Removes a player as your friend        |
 | /flist             | Lists all of your friends              |
+
+#Don't forget, friendship is magic!

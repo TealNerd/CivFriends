@@ -1,0 +1,14 @@
+name: CivFriends
+main: com.biggestnerd.civfriends.CivFriends
+version: 1.0.0
+author: TealNerd
+depend: [NameLayer]
+commands:
+ fa:
+  aliases: [friendaccept, faccept]
+ fd:
+  aliases: [frienddelete, fdelete]
+ fl:
+  aliases: [friendlist, flist]
+ fr:
+  aliases: [friendrequest, frequest]

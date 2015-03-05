@@ -34,14 +34,14 @@ public class FriendListCommand extends PlayerCommand {
 		UUID uuid = NameAPI.getUUID(p.getName());
 		FriendList friends = CivFriends.friendSave.getFriendListForPlayer(uuid);
 		if(friends.getFriends().isEmpty() && friends.getFriends().size() == 0) {
-			sender.sendMessage(ChatColor.RED + "You have no friends to list :/");
+			sender.sendMessage(ChatColor.RED + "You have no friends :/");
 			return true;
 		}
 		for(UUID id : friends.getFriends()) {
 			out.append(NameAPI.getCurrentName(id) + ", ");
 		}
 		String msg = out.toString();
-		sender.sendMessage(ChatColor.YELLOW + msg.substring(0, msg.length() - 2));
+		sender.sendMessage(ChatColor.GREEN + msg.substring(0, msg.length() - 2));
 		return true;
 	}
 
